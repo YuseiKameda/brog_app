@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { User } from "@supabase/supabase-js";
 import "./globals.css";
 import Link from "next/link";
 
@@ -7,22 +11,42 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Blog Management System",
-  description: "A simple blog management system",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+      const getUser = async () => {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        setUser(user);
+      };
+      getUser();
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
+        setUser(session?.user || null);
+      });
+
+      return () => {
+        listener.subscription.unsubscribe();
+      };
+    }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
   return (
     <html lang="en">
       <body
@@ -32,17 +56,40 @@ export default function RootLayout({
           <div className="container mx-auto px-4 py-2 flex justify-between items-center">
             <h1 className="text-2xl font-bold">My Blog</h1>
             <nav>
-              <ul className="flex space-x-4">
+            <ul className="flex space-x-4">
+              <li>
+                <Link href="/posts" className="hover:underline">Posts</Link>
+              </li>
+            {user ? (
+              <>
                 <li>
-                  <Link className="hover:text-gray-500" href="/posts">Posts</Link>
+                  <Link href="/posts/new" className="hover:underline">Create Post</Link>
+                </li>
+                <li className="font-bold">Logged in as: {user.email}</li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link href="/signup" className="hover:underline">
+                    Sign Up
+                  </Link>
                 </li>
                 <li>
-                  <Link className="hover:text-gray-500" href="/login">Login</Link>
+                  <Link href="/login" className="hover:underline">
+                    Login
+                  </Link>
                 </li>
-                <li>
-                  <Link className="hover:text-gray-500" href="/signup">Sign Up</Link>
-                </li>
-              </ul>
+              </>
+            )}
+          </ul>
             </nav>
           </div>
         </header>
