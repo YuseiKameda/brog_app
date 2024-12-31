@@ -1,14 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { User } from "@supabase/supabase-js";
 
-export default function EditPostForm({ post }: { post: { id: string; title: string; content: string; } }) {
+type Post = {
+    id: string;
+    title: string;
+    content: string;
+    created_at: string;
+    user_id: string;
+};
+
+export default function EditPostForm({ post }: { post: Post }) {
     const [title, setTitle] = useState(post.title);
     const [content, setContent] = useState(post.content);
     const [message, setMessage] = useState('');
+    const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchSession = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error("Error fetching session:", error.message);
+            }
+            setUser(session?.user || null);
+        };
+        fetchSession();
+    }, [])
+
+    const isOwner = user?.id === post.user_id;
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,6 +48,8 @@ export default function EditPostForm({ post }: { post: { id: string; title: stri
     return (
         <div className="container mx-auto">
             <h1 className="text-2xl text-bold mb-4">Edit Post</h1>
+            {user ? (
+                isOwner ? (
             <form onSubmit={handleUpdate} className="space-y-4">
                 <div>
                     <label htmlFor="title" className="block text-sm font-medium text-gray-700">
@@ -51,6 +76,12 @@ export default function EditPostForm({ post }: { post: { id: string; title: stri
                 </div>
                 <button type="submit" className="bg-blue-500 border rounded-md hover:bg-blue-300">Update</button>
             </form>
+                ) : (
+                    <p className="text-sm text-gray-500 mt-4">You can view this post, but you are not the owner.</p>
+                )
+            ) : (
+                <p className="text-sm text-gray-500 mt-4">Please log in to edit or delete this post.</p>
+            )}
             {message && <p>{message}</p>}
         </div>
     );
