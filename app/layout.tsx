@@ -66,6 +66,7 @@ export default function RootLayout({
                   <Link href="/posts/new" className="hover:underline">Create Post</Link>
                 </li>
                 <li className="font-bold">Logged in as: {user.email}</li>
+                <Link href="/profile" className="hover:underline text-gray-700">Profile</Link>
                 <li>
                   <button
                     onClick={handleLogout}
