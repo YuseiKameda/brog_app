@@ -24,18 +24,18 @@ export default function SignUpPage() {
             <h1>Sign Up</h1>
             <form onSubmit={handleSignUp}>
                 <div className="mb-4">
-                    <label>
+                    <label className="mr-2">
                         Email
                     </label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="border-gray-300 border rounded-md"
+                        className="border-gray-300 border rounded-md px-2"
                     />
                 </div>
                 <div>
-                    <label>
+                    <label className="mr-2">
                         Password
                     </label>
                     <input
@@ -43,10 +43,10 @@ export default function SignUpPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="border-gray-300 border rounded-md"
+                        className="border-gray-300 border rounded-md px-2"
                     />
                 </div>
-                <button type="submit" className="bg-blue-500 border rounded-md hover:bg-blue-300">Sign Up</button>
+                <button type="submit" className="bg-blue-500 border rounded-md hover:bg-blue-300 px-2 text-white">Sign Up</button>
             </form>
             {message && <p>{message}</p>}
         </div>

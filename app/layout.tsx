@@ -97,7 +97,8 @@ export default function RootLayout({
 
         <main className="container mx-auto px-4 py-6">{children}</main>
 
-        <footer className="bg-gray-200 text-center py-4">
+        <footer className="fixed bottom-0 left-0 w-full bg-gray-100 text-gray-600 py-4 text-center"
+        >
           <p>©2024</p>
         </footer>
       </body>
